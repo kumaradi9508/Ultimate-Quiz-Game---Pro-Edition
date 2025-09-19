@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultimate Quiz Game – Pro Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b1020;
+      --card: rgba(255,255,255,.08);
+      --card-2: rgba(255,255,255,.12);
+      --text: #e8ecf1;
+      --accent: #00f0b5;
+      --accent-2:#6ea8fe;
+      --danger:#ff5d5d;
+      --warning:#ffcc00;
+      --muted:#9aa7b6;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    [data-theme="light"]{
+      --bg: #f5f7fb;
+      --card: rgba(255,255,255,.9);
+      --card-2: rgba(255,255,255,1);
+      --text: #10131a;
+      --accent: #10b981;
+      --accent-2:#3b82f6;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+      --muted:#667085;
+      --shadow: 0 10px 25px rgba(16,19,26,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: radial-gradient(1200px 800px at 80% -10%, rgba(0,240,181,.25), transparent 60%), radial-gradient(1000px 600px at -10% 110%, rgba(110,168,254,.2), transparent 60%), var(--bg); color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px;}
+
+    .app{ width: min(1150px, 100%); }
+
+    .topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+    .brand{ display:flex; align-items:center; gap:12px; font-weight:700; letter-spacing:.5px; }
+    .brand .logo{ width:38px; height:38px; border-radius:12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow); position:relative; overflow:hidden; }
+    .brand .logo::after{content:""; position:absolute; inset:0; background: radial-gradient(150px 60px at 0% 0%, rgba(255,255,255,.35), transparent 40%);} 
+
+    .controls{ display:flex; gap:10px; flex-wrap:wrap; }
+    .btn{ border:0; padding:10px 14px; border-radius:14px; font-weight:600; cursor:pointer; background:var(--card); color:var(--text); backdrop-filter: blur(8px); transition:.2s transform, .2s background; }
+    .btn:hover{ transform: translateY(-1px); background:var(--card-2); }
+    .btn.primary{ background: linear-gradient(135deg, var(--accent), var(--accent-2)); color:#051018; }
+    .btn.danger{ background: rgba(255,93,93,.2); color: var(--danger); }
+    .btn.ghost{ background: transparent; border:1px solid rgba(255,255,255,.15)}
+    .btn.badge{ position:relative;}
+    .btn.badge .dot{position:absolute; top:6px; right:6px; width:8px;height:8px;border-radius:999px;background:var(--warning)}
+
+    .grid{ display:grid; grid-template-columns: 410px 1fr; gap:18px; }
+    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{ background:var(--card); border:1px solid rgba(255,255,255,.12); border-radius:22px; box-shadow:var(--shadow); padding:18px; }
+    .card h2{ margin:6px 0 12px; font-size:18px; }
+
+    /* Setup Panel */
+    .setup .row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px; }
+    .select, .input{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.15); background: var(--card-2); color:var(--text); }
+    .hint{ font-size:12px; color:var(--muted); }
+
+    /* Quiz Panel */
+    .quiz{ position:relative; overflow:hidden; }
+    .progress-wrap{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .progress{ flex:1; height:10px; background:rgba(255,255,255,.12); border-radius:999px; overflow:hidden; }
+    .progress > span{ display:block; height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .4s ease; }
+    .pill{ padding:6px 10px; border-radius:999px; background:var(--card-2); font-size:12px; border:1px solid rgba(255,255,255,.12) }
+
+    .question{ font-size:22px; font-weight:700; margin:8px 0 14px; line-height:1.35; }
+
+    .options{ display:grid; gap:12px; }
+    .option{ padding:14px; border-radius:16px; background:var(--card-2); border:1px solid rgba(255,255,255,.12); cursor:pointer; transition:.15s transform, .2s background, .2s border; display:flex; align-items:center; gap:12px; }
+    .option:hover{ transform: translateY(-1px); }
+    .option[data-selected="true"]{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,240,181,.25) inset; }
+    .option.correct{ background: rgba(16,185,129,.18); border-color: var(--accent); }
+    .option.wrong{ background: rgba(239,68,68,.18); border-color: var(--danger); }
+
+    .option .index{ width:28px; height:28px; border-radius:10px; display:grid; place-items:center; font-weight:700; background:rgba(255,255,255,.14) }
+
+    .quiz-footer{ margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
+    .lifelines{ display:flex; gap:8px; }
+    .lifeline{ padding:8px 10px; border-radius:12px; border:1px dashed rgba(255,255,255,.25); background:transparent; color:var(--text); cursor:pointer; font-size:12px; }
+    .lifeline:disabled{ opacity:.5; cursor:not-allowed; }
+
+    .timer{ font-weight:700; }
+
+    /* Result */
+    .result h2{ font-size:28px; margin:6px 0 10px; }
+    .score-badge{ display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:14px; background: var(--card-2); border:1px solid rgba(255,255,255,.12); }
+    .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0; }
+    .stat{ padding:12px; border-radius:14px; background:var(--card-2); border:1px solid rgba(255,255,255,.12); text-align:center; }
+    @media (max-width:520px){ .stat-grid{ grid-template-columns:1fr; } }
+
+    /* Review */
+    .review{ margin-top:16px; display:grid; gap:10px; max-height:300px; overflow:auto; }
+    .review .item{ padding:12px; border-radius:14px; background:var(--card-2); border:1px solid rgba(255,255,255,.12); }
+    .review .item h4{ margin:0 0 6px; }
+    .review .tag{ font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.12); }
+
+    /* Leaderboard */
+    .table{ width:100%; border-collapse: collapse; }
+    .table th, .table td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.12); text-align:left; }
+
+    /* Badges */
+    .badges{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+    .badge{ padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background:var(--card-2); font-size:12px; }
+
+    /* Confetti Canvas */
+    #confetti{ position: fixed; inset:0; pointer-events:none; }
+
+    /* Animations */
+    .fade-in{ animation: fade .35s ease; }
+    @keyframes fade{ from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
+  </style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<audio id="bgm" loop preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_d65267f53f.mp3?filename=chill-ambient-110997.mp3" type="audio/mpeg">
+</audio>
+<div class="app" id="app" data-theme="dark">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>Ultimate Quiz – Pro</div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="themeToggle" aria-label="Toggle theme">🌗 Theme</button>
+      <button class="btn" id="soundToggle" aria-label="Toggle SFX">🔊 SFX</button>
+      <button class="btn" id="musicToggle" aria-label="Toggle Music">🎵 Music</button>
+      <button class="btn ghost badge" id="installBtn" style="display:none">📲 Install <span class="dot"></span></button>
+      <button class="btn ghost" id="resetAll">Reset</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Setup -->
+    <section class="card setup" aria-label="Setup" id="setup">
+      <h2>Setup</h2>
+      <div class="row">
+        <div>
+          <label>Category</label>
+          <select class="select" id="category">
+            <option value="web">Web Development</option>
+            <option value="cpp">C++</option>
+            <option value="dbms">DBMS</option>
+            <option value="cricket">Cricket</option>
+            <option value="india">India GK</option>
+            <option value="cs">Computer Science</option>
+          </select>
+        </div>
+        <div>
+          <label>Mode</label>
+          <select class="select" id="mode">
+            <option value="standard">Standard</option>
+            <option value="multiround" selected>Multi-Round (Easy→Hard)</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Difficulty (Standard mode)</label>
+          <select class="select" id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+            <option value="mixed" selected>Mixed</option>
+          </select>
+        </div>
+        <div>
+          <label>Questions (total)</label>
+          <input class="input" id="count" type="number" min="6" max="24" value="12" />
+          <div class="hint">6–24 (multi-round splits across rounds)</div>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Your Name (for Leaderboard)</label>
+          <input class="input" id="playerName" placeholder="Aditya" />
+        </div>
+        <div>
+          <label>Per-Question Timer</label>
+          <select class="select" id="timerPerQ">
+            <option value="0">No timer</option>
+            <option value="15">15s</option>
+            <option value="25" selected>25s</option>
+            <option value="40">40s</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Shuffle Questions</label>
+          <select class="select" id="shuffle">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+        <div>
+          <label>Achievements</label>
+          <div class="hint">Earn badges for streaks, speed, and accuracy!</div>
+        </div>
+      </div>
+      <div class="hint">Keyboard: 1–4 to choose, Enter to submit, F=50:50, H=Hint, K=Skip</div>
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn primary" id="startBtn">Start Quiz ▶</button>
+        <button class="btn" id="viewBoard">Leaderboard 🏆</button>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="card quiz" aria-live="polite" id="quiz" hidden>
+      <div class="progress-wrap">
+        <div class="progress" aria-label="Progress"><span id="bar"></span></div>
+        <div class="pill" id="roundPill">Round 1/3</div>
+        <div class="pill" id="qIndex">Q 1/10</div>
+        <div class="pill timer" id="timer">25s</div>
+      </div>
+      <div class="pill" id="meta"></div>
+      <div class="question" id="question">Question text</div>
+      <div class="options" id="options"></div>
+
+      <div class="quiz-footer">
+        <div class="lifelines">
+          <button class="lifeline" id="fifty">50:50 (F)</button>
+          <button class="lifeline" id="hint">Hint (H)</button>
+          <button class="lifeline" id="skip">Skip (K)</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="submitBtn">Submit</button>
+          <button class="btn primary" id="nextBtn" disabled>Next ▶</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Side: Live Stats -->
+    <aside class="card" id="stats">
+      <h2>Live Stats</h2>
+      <div class="stat-grid">
+        <div class="stat"><div>Score</div><div id="score">0</div></div>
+        <div class="stat"><div>Correct</div><div id="correct">0</div></div>
+        <div class="stat"><div>Streak</div><div id="streak">0</div></div>
+      </div>
+      <h2>How to play</h2>
+      <ul style="margin:0 0 0 18px; color:var(--muted)">
+        <li>Select an option then Submit.</li>
+        <li>Use lifelines wisely: one-time each.</li>
+        <li>Keyboard: 1–4 select, Enter submit, arrows navigate.</li>
+      </ul>
+    </aside>
+
+    <!-- Result / Leaderboard -->
+    <section class="card result" id="result" hidden>
+      <h2>Results</h2>
+      <div class="score-badge">
+        <span id="finalTitle">Great job!</span>
+        <strong id="finalScore">0/10</strong>
+      </div>
+      <div class="badges" id="badges"></div>
+      <div class="stat-grid">
+        <div class="stat"><div>Accuracy</div><div id="acc">0%</div></div>
+        <div class="stat"><div>Best Streak</div><div id="bestStreak">0</div></div>
+        <div class="stat"><div>Time Used</div><div id="timeUsed">0s</div></div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn primary" id="playAgain">Play Again</button>
+        <button class="btn" id="saveScore">Save to Leaderboard</button>
+        <button class="btn" id="reviewBtn">Review Answers</button>
+      </div>
+      <div class="review" id="review" hidden></div>
+
+      <h2 style="margin-top:18px">Leaderboard 🏆</h2>
+      <table class="table" id="board"></table>
+    </section>
+  </div>
+</div>
+
+<script>
+// =============================
+// Question Banks (editable JSON)
+// =============================
+const BANK = {
+  web: [
+    { q:"Which HTML tag is semantic and used for standalone content like a blog post?", a:["<div>","<section>","<article>","<span>"], c:2, d:"easy", e:"<article> represents independent, self-contained content." },
+    { q:"Which CSS property enables smooth property transitions?", a:["animation","transition","filter","transform"], c:1, d:"easy", e:"transition animates changes between two values." },
+    { q:"What does CSS Grid 'grid-template-columns: repeat(3, 1fr);' do?", a:["Creates 3 equal columns","Creates 3 rows","Repeats template vertically","Sets fixed 3px columns"], c:0, d:"medium", e:"Defines three equal-width columns." },
+    { q:"Which HTTP status indicates resource moved permanently?", a:["200","301","302","410"], c:1, d:"medium", e:"301 Moved Permanently." },
+    { q:"Which attribute defers offscreen images?", a:["defer","loading='lazy'","async","decoding='sync'"], c:1, d:"easy", e:"Native lazy-loading." },
+    { q:"Which method deep clones JSON-serializable data?", a:["Object.assign","structuredClone","slice","map"], c:1, d:"medium", e:"structuredClone for structured data." },
+    { q:"Correct CSP to allow images from self and CDN?", a:["img-src 'none' cdn.com","img-src 'self' cdn.com","default-src cdn.com","script-src 'self' img.com"], c:1, d:"hard", e:"img-src 'self' cdn.com" },
+    { q:"In React, memoize expensive calculations using:", a:["useMemo","useEffect","useRef","useReducer"], c:0, d:"medium", e:"useMemo." },
+    { q:"Which CSS function clamps a value?", a:["minmax()","clamp()","fit()","bound()"], c:1, d:"easy", e:"clamp(min, preferred, max)." },
+    { q:"Service Workers primarily enable:", a:["WebSockets","Offline caching & PWA","DOM parsing","SSR"], c:1, d:"medium", e:"Offline-first caching." }
+  ],
+  cpp: [
+    { q:"Which of the following is not a C++ storage class?", a:["auto","register","volatile","mutable"], c:2, d:"medium", e:"volatile is a type qualifier; storage classes are auto, register, static, extern." },
+    { q:"What does RAII stand for?", a:["Resource Acquisition Is Initialization","Random Access Is Immediate","Runtime Allocation Is Internal","Reference And Instance Initialization"], c:0, d:"hard", e:"RAII ties resource lifetime to object lifetime." },
+    { q:"Which keyword disables inheritance of virtual methods?", a:["final","override","delete","static"], c:0, d:"medium", e:"final prevents further overriding." },
+    { q:"Which container guarantees contiguous storage?", a:["std::list","std::deque","std::vector","std::map"], c:2, d:"easy", e:"std::vector is contiguous." },
+    { q:"Time complexity of std::unordered_map average lookup?", a:["O(1)","O(log n)","O(n)","O(n log n)"], c:0, d:"easy", e:"Average O(1)." },
+    { q:"Which feature avoids unnecessary copies when returning large objects?", a:["Copy elision","SFINAE","CRTP","RTTI"], c:0, d:"medium", e:"Return Value Optimization / copy elision." },
+    { q:"What does 'explicit' on a constructor prevent?", a:["Slicing","Implicit conversions","Virtual dispatch","Multiple inheritance"], c:1, d:"medium", e:"Prevents implicit conversions." },
+    { q:"Which smart pointer expresses unique ownership?", a:["shared_ptr","weak_ptr","unique_ptr","auto_ptr"], c:2, d:"easy", e:"unique_ptr." },
+    { q:"Which cast is safest for polymorphic downcast?", a:["static_cast","reinterpret_cast","dynamic_cast","const_cast"], c:2, d:"medium", e:"dynamic_cast checks at runtime." },
+    { q:"What does 'constexpr' enable?", a:["Runtime-only eval","Compile-time evaluation","Dynamic linking","Thread-local storage"], c:1, d:"medium", e:"Compile-time constants & functions." }
+  ],
+  dbms: [
+    { q:"Which normal form removes transitive dependencies?", a:["1NF","2NF","3NF","BCNF"], c:2, d:"medium", e:"3NF removes transitive deps." },
+    { q:"Which SQL clause filters groups?", a:["WHERE","GROUP BY","HAVING","ORDER BY"], c:2, d:"easy", e:"HAVING filters aggregated groups." },
+    { q:"Index type best for range queries?", a:["Hash index","B+ Tree","Bitmap","Full-text"], c:1, d:"medium", e:"B+ Trees support ranges efficiently." },
+    { q:"ACID: 'I' stands for:", a:["Isolation","Integrity","Indexing","Idempotent"], c:0, d:"easy", e:"Isolation." },
+    { q:"Which anomaly is fixed by normalization?", a:["Routing","Update anomaly","Sharding","Replication"], c:1, d:"easy", e:"Normalization reduces anomalies." },
+    { q:"In SQL, SELECT without ORDER BY returns rows in:", a:["Insertion order","Primary key order","Random/unspecified order","Clustered order"], c:2, d:"medium", e:"Unspecified order." },
+    { q:"Which transaction isolation avoids dirty reads?", a:["Read Uncommitted","Read Committed","Repeatable Read","Serializable"], c:1, d:"medium", e:"Read Committed or stricter." },
+    { q:"Foreign key enforces:", a:["Entity integrity","Referential integrity","Domain integrity","Semantic integrity"], c:1, d:"easy", e:"Referential integrity." },
+    { q:"SQL to count distinct departments:", a:["COUNT(dept)","COUNT(DISTINCT dept)","SUM(dept)","UNIQUE(dept)"], c:1, d:"easy", e:"COUNT(DISTINCT col)." },
+    { q:"Denormalization typically:", a:["Increases redundancy","Decreases redundancy","Prevents indexes","Removes joins"], c:0, d:"medium", e:"It trades redundancy for speed." }
+  ],
+  cricket: [
+    { q:"How many legal deliveries in a standard over?", a:["5","6","8","10"], c:1, d:"easy", e:"6 balls per over." },
+    { q:"MS Dhoni's role primarily was:", a:["Opening batsman","Leg spinner","Wicket-keeper batsman","All-rounder"], c:2, d:"easy", e:"Wicket-keeper + finisher." },
+    { q:"A hat-trick means:", a:["3 sixes in an over","3 wickets in 3 balls","3 fours in a row","3 maidens"], c:1, d:"easy", e:"3 wickets in consecutive balls." },
+    { q:"Powerplay in ODIs initially allows how many fielders outside 30-yard circle?", a:["2","3","4","5"], c:2, d:"medium", e:"Usually 4 in first Powerplay (rules can vary by period)." },
+    { q:"Which trophy is for Test cricket between India and Australia?", a:["Border-Gavaskar","Ashes","Freedom Trophy","Trans-Tasman"], c:0, d:"easy", e:"Border–Gavaskar Trophy." },
+    { q:"DL/DLS method adjusts targets for:", a:["Pitch conditions","Rain interruptions","No-balls","Tie-breakers"], c:1, d:"medium", e:"Rain-affected games." },
+    { q:"IPL franchise from Chennai?", a:["MI","RCB","CSK","KKR"], c:2, d:"easy", e:"Chennai Super Kings." },
+    { q:"Maximum overs per bowler in a 50-over match?", a:["8","10","12","15"], c:1, d:"easy", e:"10 overs." },
+    { q:"Umpire's soft signal rule was:", a:["Always out","Field umpire's on-field call","No longer used","Only in Tests"], c:2, d:"hard", e:"Soft signal removed in recent updates." },
+    { q:"Free hit follows:", a:["Wide ball","No-ball","Dead ball","Leg byes"], c:1, d:"easy", e:"No-ball." }
+  ],
+  india: [
+    { q:"Capital of Jharkhand?", a:["Ranchi","Jamshedpur","Dhanbad","Hazaribagh"], c:0, d:"easy", e:"Ranchi." },
+    { q:"Who wrote National Anthem of India?", a:["Bankim Chandra","Rabindranath Tagore","Sarojini Naidu","Subramania Bharati"], c:1, d:"easy", e:"Rabindranath Tagore." },
+    { q:"Longest river flowing wholly in India?", a:["Ganga","Yamuna","Godavari","Narmada"], c:2, d:"medium", e:"Godavari is the longest within India." },
+    { q:"First Indian in space?", a:["Kalpana Chawla","Rakesh Sharma","Sunita Williams","Vikram Sarabhai"], c:1, d:"easy", e:"Rakesh Sharma (1984)." },
+    { q:"State with highest literacy rate (recent data)?", a:["Kerala","Tamil Nadu","Goa","Mizoram"], c:0, d:"medium", e:"Kerala traditionally highest." },
+    { q:"Dance form from Odisha?", a:["Kathak","Bharatanatyam","Odissi","Kuchipudi"], c:2, d:"easy", e:"Odissi." },
+    { q:"Which is not a Union Territory?", a:["Delhi","Puducherry","Sikkim","Ladakh"], c:2, d:"easy", e:"Sikkim is a state." },
+    { q:"Currency of India?", a:["Rupee","Taka","Dinar","Baht"], c:0, d:"easy", e:"INR." },
+    { q:"Highest civilian award in India?", a:["Padma Shri","Padma Bhushan","Padma Vibhushan","Bharat Ratna"], c:3, d:"easy", e:"Bharat Ratna." },
+    { q:"LOC is between India and:", a:["China","Pakistan","Nepal","Bangladesh"], c:1, d:"medium", e:"Line of Control with Pakistan." }
+  ],
+  cs: [
+    { q:"Which structure gives O(1) average lookup?", a:["Linked List","Hash Table","Binary Tree","Stack"], c:1, d:"easy", e:"Hashing average O(1)." },
+    { q:"BST traversal yielding sorted order?", a:["Preorder","Inorder","Postorder","Level-order"], c:1, d:"medium", e:"Inorder." },
+    { q:"Binary search complexity?", a:["O(n)","O(log n)","O(n log n)","O(1)"], c:1, d:"easy", e:"O(log n)." },
+    { q:"Semaphore used for:", a:["Scheduling","Mutual exclusion/sync","Paging","Deadlock detection"], c:1, d:"medium", e:"Sync for shared resources." },
+    { q:"TCP guarantees:", a:["Best-effort","Connectionless","Ordered, reliable delivery","Broadcast"], c:2, d:"medium", e:"Reliable, ordered." },
+    { q:"Dijkstra's algorithm paradigm:", a:["Greedy","Divide & Conquer","DP","Backtracking"], c:0, d:"medium", e:"Greedy." },
+    { q:"Which normal form removes transitive deps?", a:["1NF","2NF","3NF","BCNF"], c:2, d:"hard", e:"3NF." },
+    { q:"Pattern hiding complex subsystems:", a:["Observer","Strategy","Decorator","Facade"], c:3, d:"medium", e:"Facade." },
+    { q:"Git create and switch branch:", a:["git switch","git checkout -b <name>","git new <name>","git branch -s"], c:1, d:"easy", e:"checkout -b (or switch -c)." },
+    { q:"Quicksort average case:", a:["O(n)","O(n log n)","O(n^2)","O(log n)"], c:1, d:"medium", e:"O(n log n)." }
+  ]
+};
+
+// =============================
+// Utilities
+// =============================
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const clamp = (n,min,max)=> Math.max(min, Math.min(max,n));
+function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// Audio
+let SFX_ON = JSON.parse(localStorage.getItem('uq-sfx') ?? 'true');
+let MUSIC_ON = JSON.parse(localStorage.getItem('uq-music') ?? 'false');
+const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+function beep(freq=800, time=0.08, type='sine', gain=0.05){ if(!SFX_ON) return; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{o.stop();}, time*1000); }
+const bgm = document.getElementById('bgm');
+
+// Confetti
+const Confetti = (()=>{ const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d'); let pieces=[]; let running=false; let last; function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; } addEventListener('resize', resize); resize(); function launch(duration=1200, count=120){ pieces = [...Array(count)].map(()=>({ x: Math.random()*canvas.width, y: -20 - Math.random()*80, vx: (Math.random()-.5)*3, vy: 2+Math.random()*3, size: 5+Math.random()*6, rot: Math.random()*Math.PI, vr: (Math.random()-.5)*0.2 })); running = true; last = performance.now(); requestAnimationFrame(tick); setTimeout(()=>running=false, duration);} function tick(t){ const dt = (t-last)/16; last=t; ctx.clearRect(0,0,canvas.width,canvas.height); pieces.forEach(p=>{ p.x+=p.vx*dt; p.y+=p.vy*dt; p.rot+=p.vr*dt; if(p.y>canvas.height+20) p.y=-10; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle = `hsl(${(p.x+p.y)%360} 90% 60%)`; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore();}); if(running) requestAnimationFrame(tick); else ctx.clearRect(0,0,canvas.width,canvas.height);} return { launch }; })();
+
+// =============================
+// State
+// =============================
+let state = {
+  questions: [],
+  current: 0,
+  selected: null,
+  score: 0,
+  correct: 0,
+  streak: 0,
+  bestStreak: 0,
+  used: { fifty:false, hint:false, skip:false },
+  perQ: 25,
+  timeUsed: 0,
+  answered: [],
+  timerId: null,
+  remaining: 0,
+  player: '',
+  mode: 'multiround',
+  round: 1,
+  totalRounds: 3
+};
+
+// =============================
+// Elements
+// =============================
+const app = document.getElementById('app');
+const themeToggle = document.getElementById('themeToggle');
+const resetAll = document.getElementById('resetAll');
+const soundToggle = document.getElementById('soundToggle');
+const musicToggle = document.getElementById('musicToggle');
+const installBtn  = document.getElementById('installBtn');
+const startBtn = document.getElementById('startBtn');
+const viewBoard = document.getElementById('viewBoard');
+const setup = document.getElementById('setup');
+const quiz = document.getElementById('quiz');
+const result = document.getElementById('result');
+
+const category = document.getElementById('category');
+const difficulty = document.getElementById('difficulty');
+const modeSel = document.getElementById('mode');
+const count = document.getElementById('count');
+const playerName = document.getElementById('playerName');
+const timerPerQ = document.getElementById('timerPerQ');
+const shuffleSel = document.getElementById('shuffle');
+
+const bar = document.getElementById('bar');
+const qIndex = document.getElementById('qIndex');
+const roundPill = document.getElementById('roundPill');
+const timerEl = document.getElementById('timer');
+const questionEl = document.getElementById('question');
+const optionsEl = document.getElementById('options');
+const metaEl = document.getElementById('meta');
+
+const fiftyBtn = document.getElementById('fifty');
+const hintBtn = document.getElementById('hint');
+const skipBtn = document.getElementById('skip');
+const submitBtn = document.getElementById('submitBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+const scoreEl = document.getElementById('score');
+const correctEl = document.getElementById('correct');
+const streakEl = document.getElementById('streak');
+
+const finalTitle = document.getElementById('finalTitle');
+const finalScore = document.getElementById('finalScore');
+const accEl = document.getElementById('acc');
+const bestStreakEl = document.getElementById('bestStreak');
+const timeUsedEl = document.getElementById('timeUsed');
+const badgesEl = document.getElementById('badges');
+const playAgain = document.getElementById('playAgain');
+const saveScore = document.getElementById('saveScore');
+const reviewBtn = document.getElementById('reviewBtn');
+const reviewWrap = document.getElementById('review');
+const boardTable = document.getElementById('board');
+
+// =============================
+// Theme + Toggles
+// =============================
+(function initTheme(){ const saved = localStorage.getItem('uq-theme')||'dark'; app.dataset.theme=saved; })();
+
+themeToggle.addEventListener('click', ()=>{ app.dataset.theme = app.dataset.theme==='dark' ? 'light' : 'dark'; localStorage.setItem('uq-theme', app.dataset.theme); });
+
+function syncSfxBtn(){ soundToggle.textContent = SFX_ON? '🔊 SFX' : '🔇 SFX'; }
+function syncMusicBtn(){ musicToggle.textContent = MUSIC_ON? '🎵 Music On' : '🎵 Music Off'; }
+
+soundToggle.addEventListener('click', ()=>{ SFX_ON=!SFX_ON; localStorage.setItem('uq-sfx', JSON.stringify(SFX_ON)); syncSfxBtn(); beep(700,0.05,'triangle',0.07); });
+musicToggle.addEventListener('click', async ()=>{ MUSIC_ON=!MUSIC_ON; localStorage.setItem('uq-music', JSON.stringify(MUSIC_ON)); syncMusicBtn(); if(MUSIC_ON){ try{ await bgm.play(); }catch{} } else { bgm.pause(); } });
+
+syncSfxBtn(); syncMusicBtn(); if(MUSIC_ON){ bgm.play().catch(()=>{}); }
+
+resetAll.addEventListener('click', ()=>{ localStorage.removeItem('uq-board'); location.reload(); });
+
+// =============================
+// Build Questions
+// =============================
+function byDifficulty(list, d){ return list.filter(x=>x.d===d); }
+
+function buildStandard(){
+  const cat = category.value; const pool = BANK[cat];
+  let items = [...pool]; const diff = difficulty.value; if(diff!=="mixed") items = items.filter(x=>x.d===diff);
+  if(shuffleSel.value==='yes') items = shuffle(items);
+  const n = clamp(parseInt(count.value)||12, 6, 24);
+  return finalize(items.slice(0,n));
+}
+
+function buildMultiRound(){
+  const cat = category.value; const pool = BANK[cat];
+  const total = clamp(parseInt(count.value)||12, 6, 24);
+  const per = Math.max(2, Math.floor(total/3));
+  const r1 = shuffle(byDifficulty(pool,'easy')).slice(0,per);
+  const r2 = shuffle(byDifficulty(pool,'medium')).slice(0,per);
+  const r3 = shuffle(byDifficulty(pool,'hard')).slice(0,per);
+  const items = [...r1, ...r2, ...r3].slice(0,total);
+  return finalize(items);
+}
+
+function finalize(items){
+  // Shuffle options per question + track correct index
+  items = items.map(q=>{ const pairs = q.a.map((t,i)=>({t,i})); const sh = shuffle(pairs); const newIdx = sh.findIndex(p=>p.i===q.c); return { ...q, a: sh.map(p=>p.t), c: newIdx }; });
+  return items;
+}
+
+// =============================
+// Quiz Flow
+// =============================
+startBtn.addEventListener('click', start);
+viewBoard.addEventListener('click', ()=>{ setup.hidden=true; quiz.hidden=true; renderBoard(); result.hidden=false; });
+
+function start(){
+  const mode = modeSel.value;
+  const items = (mode==='multiround') ? buildMultiRound() : buildStandard();
+  state = { ...state, questions: items, current:0, selected:null, score:0, correct:0, streak:0, bestStreak:0, used:{fifty:false,hint:false,skip:false}, perQ:parseInt(timerPerQ.value), timeUsed:0, answered:[], player: (playerName.value||'Player').trim(), mode, round:1, totalRounds: (mode==='multiround'?3:1) };
+  setup.hidden=true; result.hidden=true; quiz.hidden=false; quiz.classList.add('fade-in');
+  renderQuestion(); updateStats();
+}
+
+function renderQuestion(){
+  const q = state.questions[state.current];
+  const roundSize = Math.floor(state.questions.length / state.totalRounds) || state.questions.length;
+  const currentRound = (state.mode==='multiround') ? Math.min(1 + Math.floor(state.current / roundSize), state.totalRounds) : 1;
+  state.round = currentRound;
+  roundPill.textContent = state.mode==='multiround' ? `Round ${currentRound}/${state.totalRounds}` : 'Standard Mode';
+
+  qIndex.textContent = `Q ${state.current+1}/${state.questions.length}`;
+  const pct = (state.current/state.questions.length)*100; bar.style.width = pct+"%";
+  questionEl.textContent = q.q;
+  metaEl.textContent = `Category: ${category.options[category.selectedIndex].text} • Difficulty: ${q.d.toUpperCase()}`;
+  optionsEl.innerHTML='';
+  q.a.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className='option'; btn.setAttribute('data-index', i); btn.innerHTML = `<span class="index">${i+1}</span> <span>${opt}</span>`; 
+    btn.addEventListener('click',()=> selectOption(i));
+    optionsEl.appendChild(btn);
+  });
+  submitBtn.disabled=false; nextBtn.disabled=true; state.selected=null; enableLifelines(true);
+  if(state.perQ>0){ startTimer(state.perQ); } else { timerEl.textContent='∞'; }
+}
+
+function selectOption(i){ state.selected=i; $$('.option').forEach(el=>el.dataset.selected = (parseInt(el.dataset.index)===i)); }
+
+function enableLifelines(on){ fiftyBtn.disabled = !on || state.used.fifty; hintBtn.disabled = !on || state.used.hint; skipBtn.disabled = !on || state.used.skip; }
+
+function answerQuestion(){
+  const q = state.questions[state.current];
+  const chosen = (state.selected==null? -1 : state.selected);
+  stopTimer();
+  let correct = false;
+  if(chosen===q.c){ correct=true; const bonus = state.remaining>=10? 2:0; state.score+= (10+bonus); state.correct+=1; state.streak+=1; state.bestStreak=Math.max(state.bestStreak,state.streak); beep(880,0.06,'triangle',0.07); }
+  else { state.streak=0; beep(200,0.09,'square',0.06); }
+  // Paint options
+  $$('.option').forEach((el,i)=>{ if(i===q.c) el.classList.add('correct'); if(chosen===i && !correct) el.classList.add('wrong'); el.disabled=true; el.style.cursor='default'; });
+  submitBtn.disabled=true; nextBtn.disabled=false; enableLifelines(false);
+  state.answered.push({ q: q.q, opts: q.a, chosen, correctIdx: q.c, exp: q.e, diff:q.d });
+}
+
+submitBtn.addEventListener('click', ()=>{ if(state.selected==null){ alert('Please select an option or use Skip.'); return; } answerQuestion(); });
+nextBtn.addEventListener('click', next);
+function next(){ if(state.current < state.questions.length-1){ state.current++; renderQuestion(); updateStats(); } else { finish(); } }
+
+function updateStats(){ scoreEl.textContent = state.score; correctEl.textContent = state.correct; streakEl.textContent = state.streak; }
+
+// Timer
+function startTimer(s){ state.remaining = s; timerEl.textContent = s+"s"; clearInterval(state.timerId); state.timerId = setInterval(()=>{ state.remaining--; state.timeUsed++; timerEl.textContent = state.remaining+"s"; if(state.remaining<=0){ clearInterval(state.timerId); autoSubmit(); } }, 1000); }
+function stopTimer(){ clearInterval(state.timerId); }
+function autoSubmit(){ if(state.selected==null){ state.selected=-1; } answerQuestion(); }
+
+// Lifelines
+fiftyBtn.addEventListener('click', ()=>{ if(state.used.fifty) return; state.used.fifty=true; fiftyBtn.disabled=true; const q = state.questions[state.current]; const indices = [0,1,2,3]; const wrong = indices.filter(i=>i!==q.c); const toHide = shuffle(wrong).slice(0,2); $$('.option').forEach((el,i)=>{ if(toHide.includes(i)) { el.style.visibility='hidden'; el.style.pointerEvents='none'; } }); beep(600,0.05,'sine',0.05); });
+
+hintBtn.addEventListener('click', ()=>{ if(state.used.hint) return; state.used.hint=true; hintBtn.disabled=true; const q = state.questions[state.current]; const hint = document.createElement('div'); hint.className='pill'; hint.style.marginTop='8px'; hint.textContent = 'Hint: ' + (q.e || 'Think carefully.'); optionsEl.after(hint); beep(700,0.05,'sine',0.05); });
+
+skipBtn.addEventListener('click', ()=>{ if(state.used.skip) return; state.used.skip=true; skipBtn.disabled=true; stopTimer(); const q = state.questions[state.current]; state.answered.push({ q:q.q, opts:q.a, chosen:-1, correctIdx:q.c, exp:q.e, diff:q.d, skipped:true }); next(); });
+
+// Finish + Achievements
+function finish(){
+  quiz.hidden=true; result.hidden=false; result.classList.add('fade-in');
+  bar.style.width='100%';
+  const n = state.questions.length; const acc = Math.round((state.correct/n)*100);
+  finalScore.textContent = `${state.correct}/${n} (Score ${state.score})`;
+  accEl.textContent = `${acc}%`;
+  bestStreakEl.textContent = state.bestStreak;
+  timeUsedEl.textContent = `${state.timeUsed}s`;
+  finalTitle.textContent = acc>=80? '🔥 Outstanding!' : acc>=60? '👏 Well done!' : acc>=40? '👍 Keep practicing!' : '💪 Don\'t give up!';
+  if(acc>=80){ Confetti.launch(1800, 160); }
+  // Badges
+  const badges = [];
+  if(state.bestStreak>=3) badges.push('🔥 Hot Streak (3+)');
+  if(acc>=90) badges.push('🎯 Sharpshooter (90%+)');
+  if(state.timeUsed <= n * Math.max(5, Math.floor(state.perQ*0.5))) badges.push('⚡ Speedster');
+  if(state.used.fifty===false && state.used.hint===false && state.used.skip===false) badges.push('🧠 No Lifelines');
+  badgesEl.innerHTML = badges.map(b=>`<span class="badge">${b}</span>`).join('') || '<span class="hint">No badges this time — try for streaks, accuracy, and speed!</span>';
+  renderBoard();
+}
+
+playAgain.addEventListener('click', ()=>{ setup.hidden=false; result.hidden=true; });
+saveScore.addEventListener('click', ()=>{ const list = JSON.parse(localStorage.getItem('uq-board')||'[]'); list.push({ name: state.player||'Player', score: state.score, correct: state.correct, total: state.questions.length, acc: Math.round((state.correct/state.questions.length)*100), date: new Date().toISOString(), streak: state.bestStreak }); list.sort((a,b)=> b.score-a.score || b.acc-a.acc ); localStorage.setItem('uq-board', JSON.stringify(list.slice(0,20))); renderBoard(); beep(900,0.06,'triangle',0.06); });
+
+reviewBtn.addEventListener('click', ()=>{ reviewWrap.hidden = !reviewWrap.hidden; if(!reviewWrap.hidden){ renderReview(); } });
+
+function renderReview(){ reviewWrap.innerHTML = ''; state.answered.forEach((r,idx)=>{ const item = document.createElement('div'); item.className='item'; const chosen = r.chosen>=0 ? r.opts[r.chosen] : '(No Answer)'; item.innerHTML = `<h4>Q${idx+1}. ${r.q}</h4><div style="display:flex; gap:8px; flex-wrap:wrap; margin:6px 0">${r.opts.map((t,i)=>`<span class="tag" style="border:${i===r.correctIdx?'1px solid var(--accent)':'none'}">${String.fromCharCode(65+i)}. ${t}</span>`).join('')}</div><div><strong>Your answer:</strong> ${chosen}</div><div><strong>Correct:</strong> ${r.opts[r.correctIdx]}</div><div style="color:var(--muted); margin-top:6px">${r.exp || ''}</div>`; reviewWrap.appendChild(item); }); }
+
+function renderBoard(){ const list = JSON.parse(localStorage.getItem('uq-board')||'[]'); if(!list.length){ boardTable.innerHTML = '<tr><td>No scores yet. Play and save your score!</td></tr>'; return; } boardTable.innerHTML = '<tr><th>#</th><th>Name</th><th>Score</th><th>Accuracy</th><th>Best Streak</th><th>Date</th></tr>' + list.map((r,i)=>`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.score}</td><td>${r.acc}%</td><td>${r.streak}</td><td>${new Date(r.date).toLocaleString()}</td></tr>`).join(''); }
+
+// Keyboard shortcuts
+addEventListener('keydown', (e)=>{ if(quiz.hidden) return; if(['1','2','3','4'].includes(e.key)){ const idx = parseInt(e.key)-1; selectOption(idx); } if(e.key==='Enter'){ if(!submitBtn.disabled) submitBtn.click(); else if(!nextBtn.disabled) nextBtn.click(); } if(e.key.toLowerCase()==='f' && !fiftyBtn.disabled) fiftyBtn.click(); if(e.key.toLowerCase()==='h' && !hintBtn.disabled) hintBtn.click(); if(e.key.toLowerCase()==='k' && !skipBtn.disabled) skipBtn.click(); });
+
+// =============================
+// PWA (Manifest + Service Worker via data/blob fallback)
+// =============================
+let deferredPrompt; window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; installBtn.style.display='inline-flex'; });
+installBtn.addEventListener('click', async ()=>{ if(!deferredPrompt) return; installBtn.disabled=true; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if(outcome==='accepted'){ installBtn.querySelector('.dot').style.background='var(--accent)'; } deferredPrompt=null; setTimeout(()=>installBtn.disabled=false, 1000); });
+
+// Attach a data-URL manifest (works in most modern browsers)
+(function attachManifest(){
+  const manifest = { name:"Ultimate Quiz – Pro", short_name:"Quiz Pro", display:"standalone", start_url:"./", background_color:"#0b1020", theme_color:"#00f0b5", icons:[ {src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='24' fill='%2300f0b5'/%3E%3Ctext x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-weight='700' font-size='72' fill='%23051018'%3F%3EQ%3C/text%3E%3C/svg%3E", sizes:"128x128", type:"image/svg+xml" } ] };
+  const href = 'data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));
+  const link = document.createElement('link'); link.rel='manifest'; link.href=href; document.head.appendChild(link);
+})();
+
+// Register a tiny offline-first service worker using a Blob URL (fallback; some browsers may block blob SW). If it fails, app still works.
+(async function registerSW(){
+  if(!('serviceWorker' in navigator)) return;
+  const code = `self.addEventListener('install',e=>{e.waitUntil(caches.open('quiz-pro-v1').then(c=>c.addAll(['./'])))});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))})`;
+  try{ const url = URL.createObjectURL(new Blob([code],{type:'text/javascript'})); await navigator.serviceWorker.register(url, { scope: './' }); }catch(err){ /* ignore */ }
+})();
+</script>
+</body>
+</html>
