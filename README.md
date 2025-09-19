@@ -23,10 +23,18 @@ It comes with multiple categories, lifelines, achievements, leaderboard, and the
 
 ## 🖼️ Preview   
 
+### 🏠 Setup Screen  
 ![Setup Screen](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Setup)  
-![Quiz Question](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Question)  
+
+### ❓ Quiz Question with Feedback  
+![Quiz Question](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Question+with+Feedback)  
+
+### 📊 Results & Feedback  
 ![Results Feedback](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Results+Feedback)  
+
+### 🏆 Leaderboard  
 ![Leaderboard](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Leaderboard)  
+ 
 
 
 ## 📂 Project Structure  
