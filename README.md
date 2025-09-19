@@ -21,21 +21,8 @@ It comes with multiple categories, lifelines, achievements, leaderboard, and the
 ✅ **Confetti Celebration** 🎉 on completion  
 ✅ **Keyboard Shortcuts** – `1–4` to choose, `Enter` to submit, `F`=50:50, `H`=Hint, `K`=Skip  
 
-## 🖼️ Preview   
-
-### 🏠 Setup Screen  
-![Setup Screen](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Setup)  
-
-### ❓ Quiz Question with Feedback  
-![Quiz Question](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Question+with+Feedback)  
-
-### 📊 Results & Feedback  
-![Results Feedback](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Results+Feedback)  
-
-### 🏆 Leaderboard  
-![Leaderboard](https://via.placeholder.com/900x500.png?text=Ultimate+Quiz+Game+-+Leaderboard)  
- 
-
+## 🖼️ Live Preview   
+Codepen: https://codepen.io/Adi-Satya/pen/yyYvPPg
 
 ## 📂 Project Structure  
 
