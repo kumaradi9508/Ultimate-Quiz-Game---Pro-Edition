@@ -57,6 +57,8 @@ Ultimate-Quiz-Game/
 
 ![image url](https://github.com/kumaradi9508/Ultimate-Quiz-Game---Pro-Edition/blob/5860bd21135b3dfca14dc29dddac641acff43400/Screenshot%202025-09-19%20122049.png)
 
+![image url](https://github.com/kumaradi9508/Ultimate-Quiz-Game---Pro-Edition/blob/239fafa36a3603f40e299077239f3eb58617a643/Screenshot%202025-09-19%20122110.png)
+
 🏆 Future Enhancements
 
    ✅ Online multiplayer mode
