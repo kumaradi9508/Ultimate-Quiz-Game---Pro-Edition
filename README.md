@@ -31,7 +31,7 @@ Ultimate-Quiz-Game/
 │── advance-quiz.html # Main game file (UI + Logic)
 │── README.md # Documentation
 
-🎯 How to Play
+## 🎯 How to Play
 
    - Select Category, Mode, and Settings from the Setup panel.
 
@@ -43,7 +43,7 @@ Ultimate-Quiz-Game/
 
    - Save your score to the Leaderboard and earn badges!
 
-🛠️ Technologies Used
+## 🛠️ Technologies Used
 
    - HTML5 – Structure
 
