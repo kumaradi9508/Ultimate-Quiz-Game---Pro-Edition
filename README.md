@@ -72,6 +72,6 @@ Ultimate-Quiz-Game/
    ✅ Sound & animation improvements
    
 
-💡 Made with ❤️ by Aditya
+## 💡 Made with ❤️ by Aditya
  
 
