@@ -10,19 +10,20 @@ It comes with multiple categories, lifelines, achievements, leaderboard, and the
 
 ## 🚀 Features  
 
-✅ **Multiple Categories** – Web Development, C++, DBMS, Cricket, India GK, Computer Science  
-✅ **Modes** – Standard & Multi-Round (Easy → Hard)  
-✅ **Lifelines** – 50:50, Hint, Skip  
-✅ **Achievements System** – Badges for streaks, speed, and accuracy  
-✅ **Leaderboard** – Save & view top scores  
-✅ **Theme Toggle** – Light 🌞 / Dark 🌙  
-✅ **Background Music & SFX** – On/Off toggle  
-✅ **Feedback System** – Instant feedback after each question to aid learning  
-✅ **Confetti Celebration** 🎉 on completion  
-✅ **Keyboard Shortcuts** – `1–4` to choose, `Enter` to submit, `F`=50:50, `H`=Hint, `K`=Skip  
+  ✅ **Multiple Categories** – Web Development, C++, DBMS, Cricket, India GK, Computer Science  
+  ✅ **Modes** – Standard & Multi-Round (Easy → Hard)  
+  ✅ **Lifelines** – 50:50, Hint, Skip  
+  ✅ **Achievements System** – Badges for streaks, speed, and accuracy  
+  ✅ **Leaderboard** – Save & view top scores  
+  ✅ **Theme Toggle** – Light 🌞 / Dark 🌙  
+  ✅ **Background Music & SFX** – On/Off toggle  
+  ✅ **Feedback System** – Instant feedback after each question to aid learning  
+  ✅ **Confetti Celebration** 🎉 on completion  
+  ✅ **Keyboard Shortcuts** – `1–4` to choose, `Enter` to submit, `F`=50:50, `H`=Hint, `K`=Skip  
 
 ## 🖼️ Live Preview   
 Codepen: https://codepen.io/Adi-Satya/pen/yyYvPPg
+
 
 ## 📂 Project Structure  
 
@@ -32,23 +33,27 @@ Ultimate-Quiz-Game/
 
 🎯 How to Play
 
-   .Select Category, Mode, and Settings from the Setup panel.
+   - Select Category, Mode, and Settings from the Setup panel.
 
-   .Click Start Quiz ▶ to begin.
+   - Click Start Quiz ▶ to begin.
 
-   .Use lifelines wisely (each usable once).
+   - Use lifelines wisely (each usable once).
 
-  .Track your score, streak, and accuracy live.
+   - Track your score, streak, and accuracy live.
 
-  .Save your score to the Leaderboard and earn badges!
+   - Save your score to the Leaderboard and earn badges!
 
 🛠️ Technologies Used
 
-  .HTML5 – Structure
+   - HTML5 – Structure
 
-  .CSS – Styling (Light/Dark themes, animations, responsive grid)
+   - CSS – Styling (Light/Dark themes, animations, responsive grid)
 
-  .JavaScript (ES6) – Game logic, timer, lifelines, leaderboard
+   - JavaScript (ES6) – Game logic, timer, lifelines, leaderboard
+
+## Result
+
+![image url](https://github.com/kumaradi9508/Ultimate-Quiz-Game---Pro-Edition/blob/3d01a8dfe7823c6cd8eb6068df24ce82c4fe926e/Screenshot%202025-09-19%20122008.png)
 
 🏆 Future Enhancements
 
